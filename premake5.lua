@@ -1,9 +1,9 @@
-workspace "ColorFrame"
+workspace "EverViewport"
 	architecture "x64"
 	configurations { "Debug", "Release" }
 	location "proj"
 
-project "ColorFrame"
+project "EverViewport"
 	kind "ConsoleApp"
 	staticruntime "off"
 	language "C++"
