@@ -23,23 +23,21 @@ namespace EverViewport
 		: p_(new Private)
 	{
 		p_->display = OpenDisplay();
-		auto* display = p_->display;
-		auto handle = p_->handle;
 		
-		if (!display)
+		if (!p_->display)
 		{
 			fprintf(stderr, "Cannot open display\n");
 		}
 		
-		int screen = DefaultScreen(display);
+		int screen = DefaultScreen(p_->display);
 		
-		handle = XCreateSimpleWindow(display,
-			RootWindow(display, screen), x, y, width, height,
-			1, BlackPixel(display, screen), WhitePixel(display, screen));
+		p_->handle = XCreateSimpleWindow(p_->display,
+			RootWindow(p_->display, screen), x, y, width, height,
+			1, BlackPixel(p_->display, screen), WhitePixel(p_->display, screen));
 		
-		XSelectInput(display, handle, ExposureMask | KeyPressMask);
+		XSelectInput(p_->display, handle, ExposureMask | KeyPressMask);
 		
-		XMapWindow(display, handle);
+		XMapWindow(p_->display, handle);
 	}
 	
 	Window::~Window()
