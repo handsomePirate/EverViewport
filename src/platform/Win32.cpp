@@ -3,6 +3,7 @@
 #include "../WindowAPI.hpp"
 #include <windows.h>
 #include <stdint.h>
+#include <memory>
 
 #define EW_WINDOW_CLASS_NAME "EverViewport window class"
 
@@ -59,8 +60,23 @@ static InternalWindowClass windowClass;
 
 namespace EverViewport
 {
-	Window::Window(int x, int y, int width, int height, const char* title)
+    struct WindowPrivate
+    {
+        ::HWND handle = 0;
+        bool shouldClose = false;
+        WindowCallbacks windowCallbacks;
+    };
+
+    struct Window::Private
+    {
+        unsigned char data[sizeof(WindowPrivate)];
+    };
+
+	Window::Window(int x, int y, int width, int height, const char* title, WindowCallbacks windowCallbacks)
+        : p_((Private*)(new((void*)new Private) WindowPrivate()))
 	{
+        ((WindowPrivate*)p_)->windowCallbacks = windowCallbacks;
+
         uint32_t windowStyle = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
         uint32_t windowExStyle = WS_EX_APPWINDOW;
 
@@ -80,42 +96,66 @@ namespace EverViewport
         uint32_t windowWidth = width + borderRectangle.right - borderRectangle.left;
         uint32_t windowHeight = height + borderRectangle.bottom - borderRectangle.top;
 
-        handle_ = (WindowHandle)::CreateWindowExA(
+        ((WindowPrivate*)p_)->handle = ::CreateWindowExA(
             windowExStyle, EW_WINDOW_CLASS_NAME, title, windowStyle,
             windowX, windowY, windowWidth, windowHeight,
             0, 0, GetHInstance(), 0);
 
-        if (handle_ == 0)
+        if (((WindowPrivate*)p_)->handle == 0)
         {
             DisplayMessageBox("Window creation failed", "Error");
             return;
         }
 
-        ::SetPropA((::HWND)handle_, "window ptr", this);
+        ::SetPropA(((WindowPrivate*)p_)->handle, "window ptr", p_);
 
         // TODO: If the window should not accept input, this should be false.
         const bool shouldActivate = true;
         int cmdFlags = shouldActivate ? SW_SHOW : SW_SHOWNOACTIVATE;
         // If initially minimized, use SW_MINIMIZE : SW_SHOWMINNOACTIVE.
         // If initially maximized, use SW_SHOWMAXIMIZED : SW_MAXIMIZE.
-        ::ShowWindow((::HWND)handle_, cmdFlags);
+        ::ShowWindow(((WindowPrivate*)p_)->handle, cmdFlags);
 	}
 
 	Window::~Window()
 	{
-        ::DestroyWindow((::HWND)handle_);
-        handle_ = 0;
+        ::DestroyWindow(((WindowPrivate*)p_)->handle);
+        delete p_;
 	}
 
-	WindowHandle Window::GetWindowHandle() const
-	{
-		return handle_;
-	}
+    WindowHandle Window::GetWindowHandle() const
+    {
+        return (WindowHandle)((WindowPrivate*)p_)->handle;
+    }
+
+    void Window::PollMessages()
+    {
+        MSG message;
+        while (::PeekMessageA(&message, ((WindowPrivate*)p_)->handle, 0, 0, PM_REMOVE) > 0)
+        {
+            ::TranslateMessage(&message);
+            ::DispatchMessageA(&message);
+            if (message.message == WM_QUIT)
+            {
+                ((WindowPrivate*)p_)->shouldClose = true;
+            }
+        }
+    }
+
+    bool Window::ShouldClose() const
+    {
+        return ((WindowPrivate*)p_)->shouldClose;
+    }
 }
 
 LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
-    if (msg == WM_CREATE)
+    if (msg == WM_PAINT)
+    {
+        auto handle = (EverViewport::WindowPrivate*)::GetPropA(hwnd, "window ptr");
+        handle->windowCallbacks.renderFunction();
+    }
+    else if (msg == WM_CREATE)
     {
         ::SetCursor(::LoadCursor(NULL, IDC_ARROW));
     }
@@ -132,6 +172,9 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
     }
     else if (msg == WM_CLOSE)
     {
+        auto handle = (EverViewport::WindowPrivate*)::GetPropA(hwnd, "window ptr");
+        handle->shouldClose = true;
+        
         return TRUE;
     }
     else if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK || msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK)
@@ -166,6 +209,8 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
     {
         RECT rectangle;
         ::GetClientRect(hwnd, &rectangle);
+        auto handle = (EverViewport::WindowPrivate*)::GetPropA(hwnd, "window ptr");
+        handle->windowCallbacks.resizeFunction(rectangle.right - rectangle.left, rectangle.bottom - rectangle.top);
     }
     else if (msg == WM_SETCURSOR)
     {
