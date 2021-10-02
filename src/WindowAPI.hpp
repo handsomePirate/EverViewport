@@ -7,6 +7,9 @@ namespace EverViewport
 	class HWND__;
 	typedef HWND__* HWND;
 	typedef HWND WindowHandle;
+#elif __linux__
+	typedef unsigned long XID;
+	typedef XID WindowHandle;
 #endif
 
 	struct WindowCallbacks
