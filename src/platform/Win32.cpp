@@ -153,7 +153,11 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
     if (msg == WM_PAINT)
     {
         auto handle = (EverViewport::WindowPrivate*)::GetPropA(hwnd, "window ptr");
-        handle->windowCallbacks.renderFunction();
+        
+        if (handle->windowCallbacks.renderFunction)
+        {
+            handle->windowCallbacks.renderFunction();
+        }
     }
     else if (msg == WM_CREATE)
     {
@@ -210,7 +214,11 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
         RECT rectangle;
         ::GetClientRect(hwnd, &rectangle);
         auto handle = (EverViewport::WindowPrivate*)::GetPropA(hwnd, "window ptr");
-        handle->windowCallbacks.resizeFunction(rectangle.right - rectangle.left, rectangle.bottom - rectangle.top);
+
+        if (handle->windowCallbacks.resizeFunction)
+        {
+            handle->windowCallbacks.resizeFunction(rectangle.right - rectangle.left, rectangle.bottom - rectangle.top);
+        }
     }
     else if (msg == WM_SETCURSOR)
     {
