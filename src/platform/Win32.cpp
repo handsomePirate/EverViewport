@@ -128,6 +128,11 @@ namespace EverViewport
         return (WindowHandle)((WindowPrivate*)p_)->handle;
     }
 
+    Connection Window::GetProgramConnection() const
+    {
+        return GetHInstance();
+    }
+
     void Window::PollMessages()
     {
         MSG message;

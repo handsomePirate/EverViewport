@@ -51,6 +51,11 @@ namespace EverViewport
 	{
 		return p_->handle;
 	}
+
+	Connection Window::GetProgramConnection() const
+	{
+		return (Connection)p_->display;
+	}
 	
 	void Window::PollMessages()
 	{

@@ -4,9 +4,15 @@
 struct HWND__;
 typedef HWND__* HWND;
 typedef HWND WindowHandle;
+
+struct HINSTANCE__;
+typedef HINSTANCE__* HINSTANCE;
+typedef HINSTANCE Connection;
 #elif __linux__
 typedef unsigned long XID;
 typedef XID WindowHandle;
+
+typedef void* Connection;
 #endif
 
 namespace EverViewport
@@ -26,6 +32,8 @@ namespace EverViewport
 		~Window();
 
 		WindowHandle GetWindowHandle() const;
+		Connection GetProgramConnection() const;
+
 		void PollMessages();
 		bool ShouldClose() const;
 
