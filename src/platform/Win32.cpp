@@ -1,6 +1,6 @@
 #ifdef _WIN32
 
-#include "../WindowAPI.hpp"
+#include "EverViewport/WindowAPI.hpp"
 #include <windows.h>
 #include <stdint.h>
 #include <memory>
@@ -140,10 +140,6 @@ namespace EverViewport
         {
             ::TranslateMessage(&message);
             ::DispatchMessageA(&message);
-            if (message.message == WM_QUIT)
-            {
-                ((WindowPrivate*)p_)->shouldClose = true;
-            }
         }
     }
 

@@ -1,5 +1,6 @@
 #ifdef __linux__
-#include "../WindowAPI.hpp"
+
+#include "EverViewport/WindowAPI.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
