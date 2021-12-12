@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <memory>
 
+#include <iostream>
+
 #define EW_WINDOW_CLASS_NAME "EverViewport window class"
 
 LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam);
@@ -223,7 +225,28 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
     }
     else if (msg == WM_SETCURSOR)
     {
-
+        auto loword = LOWORD(lParam);
+        if (loword == HTRIGHT || loword == HTLEFT)
+        {
+            ::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
+        }
+        else if (loword == HTTOP || loword == HTBOTTOM)
+        {
+            ::SetCursor(::LoadCursor(NULL, IDC_SIZENS));
+        }
+        else if (loword == HTBOTTOMRIGHT || loword == HTTOPLEFT)
+        {
+            ::SetCursor(::LoadCursor(NULL, IDC_SIZENWSE));
+        }
+        else if (loword == HTBOTTOMLEFT || loword == HTTOPRIGHT)
+        {
+            ::SetCursor(::LoadCursor(NULL, IDC_SIZENESW));
+        }
+        else
+        {
+            ::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+        }
+        return TRUE;
     }
 
     return DefWindowProcA(hwnd, msg, wParam, lParam);
