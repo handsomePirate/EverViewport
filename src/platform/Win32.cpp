@@ -67,6 +67,8 @@ namespace EverViewport
         ::HWND handle = 0;
         bool shouldClose = false;
         WindowCallbacks windowCallbacks;
+        int width;
+        int height;
     };
 
     struct Window::Private
@@ -78,6 +80,8 @@ namespace EverViewport
         : p_((Private*)(new((void*)new Private) WindowPrivate()))
 	{
         ((WindowPrivate*)p_)->windowCallbacks = windowCallbacks;
+        ((WindowPrivate*)p_)->width = width;
+        ((WindowPrivate*)p_)->height = height;
 
         uint32_t windowStyle = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
         uint32_t windowExStyle = WS_EX_APPWINDOW;
@@ -214,14 +218,25 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
     }
     else if (msg == WM_SIZE)
     {
-        RECT rectangle;
-        ::GetClientRect(hwnd, &rectangle);
-        auto handle = (EverViewport::WindowPrivate*)::GetPropA(hwnd, "window ptr");
+        auto width = LOWORD(lParam);
+        auto height = HIWORD(lParam);
 
+        auto handle = (EverViewport::WindowPrivate*)::GetPropA(hwnd, "window ptr");
         if (handle->windowCallbacks.resizeFunction)
         {
-            handle->windowCallbacks.resizeFunction(rectangle.right - rectangle.left, rectangle.bottom - rectangle.top);
+            handle->windowCallbacks.resizeFunction(width, height);
         }
+
+        if (handle->width > width || handle->height > height)
+        {
+            if (handle->windowCallbacks.renderFunction)
+            {
+                handle->windowCallbacks.renderFunction();
+            }
+        }
+
+        handle->width = width;
+        handle->height = height;
     }
     else if (msg == WM_SETCURSOR)
     {
