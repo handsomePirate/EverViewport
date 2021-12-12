@@ -8,5 +8,7 @@ workspace "EverViewport"
 		"MultiProcessorCompile"
 	}
 
+include "../dependencies.lua"
+	
 include "../proj/EverViewport"
 include "../proj/Test"

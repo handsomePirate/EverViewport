@@ -1,6 +1,7 @@
 #ifdef _WIN32
 
 #include "EverViewport/WindowAPI.hpp"
+#include <SoftwareCore/EventSystem.hpp>
 #include <windows.h>
 #include <stdint.h>
 #include <memory>
@@ -172,12 +173,20 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
     }
     else if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN || msg == WM_KEYUP || msg == WM_SYSKEYUP)
     {
+        Core::EventCode code = (msg & 0x0001) ? Core::EventCode::KeyReleased : Core::EventCode::KeyPressed;
+        Core::EventData eventData;
+        eventData.data.u16[0] = (uint16_t)wParam;
+
+        CoreEventSystem.SignalEvent(code, eventData);
         return TRUE;
     }
     else if (msg == WM_CHAR)
     {
         if (wParam > 0 && wParam < 0x10000)
         {
+            Core::EventData eventData;
+            eventData.data.u16[0] = (unsigned short)wParam;
+            CoreEventSystem.SignalEvent(Core::EventCode::CharacterInput, eventData);
         }
         return TRUE;
     }
@@ -191,30 +200,60 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
     else if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK || msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK)
     {
         uint16_t whichButton = msg & 0x0001 ? 0 /*left*/ : 1 /*right*/;
+        Core::EventData eventData;
+        eventData.data.u16[0] = whichButton;
 
         SetCapture(hwnd);
 
+        CoreEventSystem.SignalEvent(Core::EventCode::MouseButtonPressed, eventData);
         return TRUE;
     }
     else if (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP)
     {
         uint16_t whichButton = msg & 0x0001 ? 1 /*left*/ : 0 /*right*/;
+        Core::EventData eventData;
+        eventData.data.u16[0] = whichButton;
 
         ReleaseCapture();
 
+        CoreEventSystem.SignalEvent(Core::EventCode::MouseButtonReleased, eventData);
         return TRUE;
     }
     else if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP || msg == WM_MBUTTONDBLCLK)
     {
+        Core::EventCode code = msg & 0x0001 ? Core::EventCode::MouseButtonPressed : Core::EventCode::MouseButtonReleased;
+        Core::EventData eventData;
+        eventData.data.u16[0] = uint16_t(2);
+
+        if (code == Core::EventCode::MouseButtonPressed)
+        {
+            SetCapture(hwnd);
+        }
+        else
+        {
+            ReleaseCapture();
+        }
+
+        CoreEventSystem.SignalEvent(code, eventData);
         return TRUE;
     }
     else if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL)
     {
+        Core::EventData eventData;
+        eventData.data.i8[0] = (int8_t)(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
+        eventData.data.u8[1] = (msg == WM_MOUSEHWHEEL) ? 1 : 0;
+
+        CoreEventSystem.SignalEvent(Core::EventCode::MouseWheel, eventData);
         return TRUE;
     }
     else if (msg == WM_MOUSEMOVE)
     {
-
+        POINT pos;
+        ::GetCursorPos(&pos);
+        Core::EventData eventData;
+        eventData.data.i16[0] = (int16_t)pos.x;
+        eventData.data.i16[1] = (int16_t)pos.y;
+        CoreEventSystem.SignalEvent(Core::EventCode::MouseMoved, eventData);
     }
     else if (msg == WM_SIZE)
     {

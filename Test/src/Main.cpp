@@ -1,4 +1,5 @@
 #include <EverViewport/WindowAPI.hpp>
+#include <SoftwareCore/EventSystem.hpp>
 #include <iostream>
 
 void Render()
@@ -11,8 +12,16 @@ void Resize(int width, int height)
 	std::cout << "resize: " << width << ", " << height << std::endl;
 }
 
+void MouseClick(Core::EventCode eventCode, Core::EventData eventData)
+{
+	std::cout << "mouse click" << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
+	volatile int listener = 0;
+	CoreEventSystem.SubscribeToEvent(Core::EventCode::MouseButtonPressed, MouseClick, (void*)&listener);
+
 	EverViewport::WindowCallbacks windowCallbacks{ Render, Resize };
 
 	EverViewport::Window* window1 = new EverViewport::Window(50, 50, 720, 480, "test window 1", windowCallbacks);
@@ -42,6 +51,8 @@ int main(int argc, char* argv[])
 			window2->PollMessages();
 		}
 	}
+
+	CoreEventSystem.UnsubscribeFromEvent(Core::EventCode::MouseButtonPressed, (void*)&listener);
 
 	return 0;
 }

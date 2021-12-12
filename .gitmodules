@@ -1,0 +1,3 @@
+[submodule "ext/SoftwareCore"]
+	path = ext/SoftwareCore
+	url = https://github.com/handsomePirate/SoftwareCore.git

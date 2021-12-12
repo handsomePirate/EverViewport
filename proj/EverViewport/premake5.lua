@@ -15,7 +15,12 @@ project "EverViewport"
 	}
 	
 	includedirs {
+		SoftwareCoreInclude,
 		EverViewportInclude
+	}
+	
+	links {
+		"SoftwareCore"
 	}
 	
 	filter "system:windows"

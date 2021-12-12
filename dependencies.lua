@@ -1,0 +1,6 @@
+group "ext"
+	include "ext/SoftwareCore/dependencies.lua"
+group ""
+group "ext"
+	include "ext/SoftwareCore/proj/SoftwareCore"
+group ""

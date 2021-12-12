@@ -9,6 +9,7 @@ project "Test"
 	files { "../../Test/src/**.hpp", "../../Test/src/**.cpp" }
 	
 	includedirs {
+		SoftwareCoreInclude,
 		EverViewportInclude
 	}
 	
