@@ -142,7 +142,7 @@ namespace EverViewport
 
     bool Window::InFocus() const
     {
-        return ::GetCapture() == ((WindowPrivate*)p_)->handle;
+        return ::GetFocus() == ((WindowPrivate*)p_)->handle;
     }
 
     void Window::PollMessages()
