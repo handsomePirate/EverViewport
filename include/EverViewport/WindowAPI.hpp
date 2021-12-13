@@ -34,6 +34,8 @@ namespace EverViewport
 		WindowHandle GetWindowHandle() const;
 		Connection GetProgramConnection() const;
 
+		bool InFocus() const;
+
 		void PollMessages();
 		bool ShouldClose() const;
 

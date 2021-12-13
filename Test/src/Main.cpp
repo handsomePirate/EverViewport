@@ -2,6 +2,9 @@
 #include <SoftwareCore/EventSystem.hpp>
 #include <iostream>
 
+EverViewport::Window* window1 = nullptr;
+EverViewport::Window* window2 = nullptr;
+
 void Render()
 {
 	std::cout << "render" << std::endl;
@@ -14,7 +17,10 @@ void Resize(int width, int height)
 
 void MouseClick(Core::EventCode eventCode, Core::EventData eventData)
 {
-	std::cout << "mouse click" << std::endl;
+	if (window1 && window1->InFocus())
+	{
+		std::cout << "mouse click" << std::endl;
+	}
 }
 
 int main(int argc, char* argv[])
@@ -24,8 +30,8 @@ int main(int argc, char* argv[])
 
 	EverViewport::WindowCallbacks windowCallbacks{ Render, Resize };
 
-	EverViewport::Window* window1 = new EverViewport::Window(50, 50, 720, 480, "test window 1", windowCallbacks);
-	EverViewport::Window* window2 = new EverViewport::Window(60, 60, 720, 480, "test window 2", windowCallbacks);
+	window1 = new EverViewport::Window(50, 50, 720, 480, "test window 1", windowCallbacks);
+	window2 = new EverViewport::Window(60, 60, 720, 480, "test window 2", windowCallbacks);
 	
 	while ((window1 && !window1->ShouldClose()) || (window2 && !window2->ShouldClose()))
 	{

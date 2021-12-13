@@ -140,6 +140,11 @@ namespace EverViewport
         return GetHInstance();
     }
 
+    bool Window::InFocus() const
+    {
+        return ::GetCapture() == ((WindowPrivate*)p_)->handle;
+    }
+
     void Window::PollMessages()
     {
         MSG message;
