@@ -37,7 +37,9 @@ namespace EverViewport
 		bool InFocus() const;
 
 		void PollMessages();
+
 		bool ShouldClose() const;
+		void Close();
 
 	private:
 		struct Private;

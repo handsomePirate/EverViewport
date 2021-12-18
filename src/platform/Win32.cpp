@@ -159,6 +159,11 @@ namespace EverViewport
     {
         return ((WindowPrivate*)p_)->shouldClose;
     }
+
+    void Window::Close()
+    {
+        ((WindowPrivate*)p_)->shouldClose = true;
+    }
 }
 
 LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
