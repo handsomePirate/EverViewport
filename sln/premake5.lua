@@ -1,6 +1,7 @@
 workspace "EverViewport"
 	architecture "x64"
 	configurations { "Debug", "Release" }
+	startproject "Test"
 	location ""
 	
 	flags
