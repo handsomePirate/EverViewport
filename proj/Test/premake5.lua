@@ -14,11 +14,14 @@ project "Test"
 	}
 	
 	links {
-		"EverViewport"
+		"EverViewport",
+		"SoftwareCore"
 	}
 	
-	filter "system:windows"
-		systemversion "latest"
+	filter "system:linux"
+		links {
+			"X11"
+		}
 	filter{}
 	
 	filter "configurations:Debug"

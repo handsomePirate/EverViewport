@@ -16,7 +16,7 @@ namespace EverViewport
     	{
         	::XID handle = 0;
         	Display* display = 0;
-        	bool shouldClose = false;
+        	bool shouldClose = true;
         	WindowCallbacks windowCallbacks;
     	};
 
@@ -28,6 +28,7 @@ namespace EverViewport
 		if (!p_->display)
 		{
 			fprintf(stderr, "Cannot open display\n");
+			return;
 		}
 		
 		int screen = DefaultScreen(p_->display);
@@ -36,9 +37,10 @@ namespace EverViewport
 			RootWindow(p_->display, screen), x, y, width, height,
 			1, BlackPixel(p_->display, screen), WhitePixel(p_->display, screen));
 		
-		XSelectInput(p_->display, handle, ExposureMask | KeyPressMask);
+		XSelectInput(p_->display, p_->handle, ExposureMask | KeyPressMask);
 		
-		XMapWindow(p_->display, handle);
+		XMapWindow(p_->display, p_->handle);
+		p_->shouldClose = false;
 	}
 	
 	Window::~Window()
@@ -56,6 +58,15 @@ namespace EverViewport
 	Connection Window::GetProgramConnection() const
 	{
 		return (Connection)p_->display;
+	}
+
+	bool Window::InFocus() const
+	{
+		::Window focused;
+		int revert_to;
+
+		XGetInputFocus(p_->display, &focused, &revert_to);
+		return focused == p_->handle;
 	}
 	
 	void Window::PollMessages()
