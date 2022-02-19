@@ -2,6 +2,8 @@
 
 #include "EverViewport/WindowAPI.hpp"
 #include <SoftwareCore/EventSystem.hpp>
+#include <SoftwareCore/Logger.hpp>
+#include <SoftwareCore/DefaultLogger.hpp>
 #include <windows.h>
 #include <stdint.h>
 #include <memory>
@@ -15,11 +17,6 @@ LRESULT CALLBACK ProcessMessage(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM l
 inline HINSTANCE GetHInstance()
 {
 	return ::GetModuleHandleA(0);
-}
-
-inline void DisplayMessageBox(const char* message, const char* title)
-{
-    ::MessageBoxA(0, message, title, MB_ICONEXCLAMATION | MB_OK);
 }
 
 class InternalWindowClass
@@ -43,7 +40,7 @@ public:
         wc.lpszClassName = EW_WINDOW_CLASS_NAME;
 
         if (!::RegisterClassA(&wc)) {
-            DisplayMessageBox("Window class registration failed", "Error");
+            CoreLogError(DefaultLogger, "Window class registration failed.");
             return;
         }
 
@@ -110,7 +107,7 @@ namespace EverViewport
 
         if (((WindowPrivate*)p_)->handle == 0)
         {
-            DisplayMessageBox("Window creation failed", "Error");
+            CoreLogError(DefaultLogger, "Window creation failed.");
             return;
         }
 

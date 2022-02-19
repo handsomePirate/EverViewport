@@ -1,6 +1,8 @@
 #ifdef __linux__
 
 #include "EverViewport/WindowAPI.hpp"
+#include <SoftwareCore/Logger.hpp>
+#include <SoftwareCore/DefaultLogger.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
@@ -27,7 +29,7 @@ namespace EverViewport
 		
 		if (!p_->display)
 		{
-			fprintf(stderr, "Cannot open display\n");
+			CoreLogError(DefaultLogger, "Cannot open display.");
 			return;
 		}
 		
